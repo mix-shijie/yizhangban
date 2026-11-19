@@ -1,0 +1,19 @@
+# 一张板的真相 · 板材 3D 配置器（yizhangban）
+
+> 浏览器里运行的全屋定制 3D 配置器：换花色、开柜门、调尺寸、拆开一张板看截面（饰面纸、基材、平衡层、封边），材料单和示意报价实时联动。纯静态网页，Three.js，无后端，不收集数据。由 MIX饰界智变·高维伟 制作；代码 MIT，文字和图像 CC BY 4.0。
+
+A browser-based 3D cabinetry configurator for the panel/board industry. Static site, no backend, no data collection. Made by MIX饰界智变·高维伟 (Gao Weiwei). Code MIT, content CC BY 4.0.
+
+## 文档
+
+- [README](https://github.com/mix-shijie/yizhangban/blob/main/README.md): 介绍、本地运行、定制、许可证
+- [AGENTS.md](https://github.com/mix-shijie/yizhangban/blob/main/AGENTS.md): 给 AI Agent 的部署步骤（发布前必须先问用户）
+- [config.json](https://github.com/mix-shijie/yizhangban/blob/main/config.json): 品牌、花色、尺寸、示意价格、联系方式
+- [finishes/README.md](https://github.com/mix-shijie/yizhangban/blob/main/finishes/README.md): 自定义花色图片的要求
+- [LICENSE](https://github.com/mix-shijie/yizhangban/blob/main/LICENSE) / [CONTENT_LICENSE.md](https://github.com/mix-shijie/yizhangban/blob/main/CONTENT_LICENSE.md)
+
+## 链接
+
+- 在线演示: https://mix-shijie.github.io/yizhangban/
+- 仓库: https://github.com/mix-shijie/yizhangban
+- 作者: MIX饰界智变·高维伟（板材行业 18 年｜前北新木业全国产品经理、西北大区总经理｜Berkeley College MBA）

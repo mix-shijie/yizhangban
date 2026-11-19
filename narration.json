@@ -1,0 +1,158 @@
+{
+  "说明": "自动演示的解说脚本。字幕（zh）和英文解说（en）都从这一份读；t 是这一句开始的秒数，dur 是字幕停留的秒数。镜头和动作挂在每句的 id 上，改 t 动作会跟着走；不要改 id。英文每句控制在 dur × 2.2 个词以内，否则会念不完。目录里放 narration_en.mp3 就改播这个文件（从演示第 0 秒开始播），放 bgm.mp3 就用它当配乐。某一句加 \"sub\": false 就只念不出字幕（结尾画面上已经有标题）。",
+  "voice": {
+    "rate": 0.92,
+    "prefer": [
+      "Andrew Online (Natural)",
+      "Brian Online (Natural)",
+      "Guy Online (Natural)",
+      "Christopher Online (Natural)",
+      "Eric Online (Natural)",
+      "Roger Online (Natural)",
+      "Steffan Online (Natural)",
+      "Ryan Online (Natural)",
+      "Google UK English Male",
+      "Microsoft Guy",
+      "Microsoft David",
+      "Microsoft Mark",
+      "Daniel",
+      "Alex"
+    ]
+  },
+  "music": {
+    "volume": 0.38,
+    "duck": 0.28
+  },
+  "showEnglish": false,
+  "ask": "我家地下室想做一面通顶储物柜，用什么板材？",
+  "end": 120,
+  "segments": [
+    {
+      "id": "intro",
+      "t": 1.0,
+      "dur": 7.5,
+      "zh": "你看到的花色，只是一张纸。真正撑起一个柜子的，是纸下面那张板。",
+      "en": "The finish is paper. The board beneath it holds the cabinet together."
+    },
+    {
+      "id": "finish",
+      "t": 10.5,
+      "dur": 7.5,
+      "zh": "同一套柜体，十一种花色：直纹、山纹、石纹、纯色，点一下就换。",
+      "en": "Eleven finishes: wood, stone, and solid colors."
+    },
+    {
+      "id": "doors",
+      "t": 19.0,
+      "dur": 7.5,
+      "zh": "柜门、抽屉都能打开。层板、背板、抽屉盒，和门板是同一个花色。",
+      "en": "Open every door and drawer. The finish matches throughout."
+    },
+    {
+      "id": "inside",
+      "t": 27.0,
+      "dur": 5.0,
+      "zh": "镜头推近，看得到里面怎么分层、怎么收纳。",
+      "en": "Look inside. Shelves organize the space."
+    },
+    {
+      "id": "stairs",
+      "t": 32.5,
+      "dur": 4.5,
+      "zh": "楼梯下面的空间，也做成了柜子和抽屉。",
+      "en": "Storage continues beneath the stairs."
+    },
+    {
+      "id": "xray1",
+      "t": 38.5,
+      "dur": 6.0,
+      "zh": "把一张板拆开看：最上面的花色，是一层浸过胶的纸。",
+      "en": "Separate the layers. The finish is resin-treated paper."
+    },
+    {
+      "id": "xray2",
+      "t": 45.0,
+      "dur": 6.0,
+      "zh": "中间是基材，背面有一层平衡纸，四边用封边带封住。",
+      "en": "Core, balancing paper, and edge banding."
+    },
+    {
+      "id": "pb",
+      "t": 51.5,
+      "dur": 4.8,
+      "zh": "刨花板：木刨花加胶热压，表层细、芯层粗，是定制柜的常用基材。",
+      "en": "Particleboard: bonded wood chips."
+    },
+    {
+      "id": "ply",
+      "t": 56.5,
+      "dur": 4.3,
+      "zh": "多层板：薄木单板一层横、一层竖，交错胶合。",
+      "en": "Plywood: layers of wood veneer."
+    },
+    {
+      "id": "eco",
+      "t": 61.0,
+      "dur": 4.3,
+      "zh": "生态板：实木条拼成芯，上下再压单板。",
+      "en": "Blockboard: solid wood strips."
+    },
+    {
+      "id": "mdf",
+      "t": 65.5,
+      "dur": 4.3,
+      "zh": "密度板：木纤维压成，质地均匀细腻。",
+      "en": "MDF: pressed wood fibers."
+    },
+    {
+      "id": "adjust1",
+      "t": 71.5,
+      "dur": 6.0,
+      "zh": "拖动金色的线，柜子变宽、变高，尺寸数字跟着变。",
+      "en": "Drag the gold guides. Dimensions change with the cabinet."
+    },
+    {
+      "id": "adjust2",
+      "t": 78.0,
+      "dur": 6.0,
+      "zh": "看右上角：材料单和报价，每拖一下都在重新计算。",
+      "en": "The material list and estimate update as you drag."
+    },
+    {
+      "id": "bom1",
+      "t": 85.0,
+      "dur": 7.5,
+      "zh": "材料单是从模型直接算出来的：几张板、多少平米、封边多少米、五金多少件。",
+      "en": "The model calculates sheets, area, edge banding, and hardware."
+    },
+    {
+      "id": "bom2",
+      "t": 93.0,
+      "dur": 5.0,
+      "zh": "三档报价都是示意价格，不是真实报价。",
+      "en": "All prices are illustrative."
+    },
+    {
+      "id": "ai1",
+      "t": 98.5,
+      "dur": 4.5,
+      "zh": "现在很多人做决定之前，会先问一句 AI。",
+      "en": "People often ask AI before deciding."
+    },
+    {
+      "id": "ai2",
+      "t": 103.5,
+      "dur": 8.5,
+      "zh": "把产品写成 AI 读得懂的格式：一张事实卡，加一段结构化数据。你的产品，要先讲给 AI 听。",
+      "en": "Give AI clear product facts: a fact card and structured data."
+    },
+    {
+      "id": "outro",
+      "t": 113.0,
+      "dur": 5.5,
+      "sub": false,
+      "zh": "一张板的真相。MIX饰界智变。",
+      "en": "The Truth About a Board. By MIX."
+    }
+  ]
+}

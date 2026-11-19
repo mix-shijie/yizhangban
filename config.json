@@ -1,0 +1,54 @@
+{
+  "_说明": "改这一个文件就能换品牌名、花色、默认尺寸、示意价格和联系方式。改完刷新页面（Ctrl+F5）。字段含义见 AGENTS.md。所有价格只是示意，不是报价。",
+
+  "brand": {
+    "title": "一张板的真相",
+    "subtitle": "MIX饰界智变",
+    "productBrand": "示例品牌 A",
+    "productName": "地下室整墙储物柜 · 定制方案（示例）",
+    "contact": ""
+  },
+
+  "defaultFinish": "oak",
+
+  "finishes": [
+    { "id": "oak",      "builtin": "oak",      "name": "暖橡",   "kind": "直纹" },
+    { "id": "oakc",     "builtin": "oakc",     "name": "山纹橡", "kind": "山纹" },
+    { "id": "walnut",   "builtin": "walnut",   "name": "胡桃",   "kind": "直纹" },
+    { "id": "cherry",   "builtin": "cherry",   "name": "樱桃",   "kind": "半山纹" },
+    { "id": "ash",      "builtin": "ash",      "name": "白蜡",   "kind": "直纹" },
+    { "id": "smoke",    "builtin": "smoke",    "name": "烟熏橡", "kind": "直纹" },
+    { "id": "marble",   "builtin": "marble",   "name": "雪域白", "kind": "石纹" },
+    { "id": "slate",    "builtin": "slate",    "name": "岩灰",   "kind": "石纹" },
+    { "id": "cream",    "builtin": "cream",    "name": "奶油白", "kind": "纯色" },
+    { "id": "sage",     "builtin": "sage",     "name": "鼠尾草", "kind": "纯色" },
+    { "id": "graphite", "builtin": "graphite", "name": "石墨灰", "kind": "纯色" }
+  ],
+
+  "cabinet": {
+    "widthsMm": [600, 700, 1000, 700, 600],
+    "heightMm": 2400,
+    "minModuleWidthMm": 300,
+    "maxModuleWidthMm": 1200,
+    "minHeightMm": 1900,
+    "maxHeightMm": 2500
+  },
+
+  "pricing": {
+    "currency": "¥",
+    "wasteFactor18": 1.18,
+    "wasteFactor9": 1.1,
+    "edgeFactor": 1.1,
+    "shelfPinPrice": 0.5,
+    "coreFactor": { "pb": 1, "mdf": 0.96, "ply": 1.25, "eco": 1.2 },
+    "tiers": [
+      { "name": "经济", "p18": [150, 200], "p9": [45, 60],   "edge": [3, 4],   "hinge": [8, 12],  "slide": [35, 55],   "handle": [10, 16],  "led": [60, 90] },
+      { "name": "中端", "p18": [260, 360], "p9": [70, 95],   "edge": [5, 8],   "hinge": [18, 28], "slide": [80, 130],  "handle": [25, 42],  "led": [120, 190] },
+      { "name": "高端", "p18": [460, 680], "p9": [110, 160], "edge": [9, 14],  "hinge": [45, 80], "slide": [220, 380], "handle": [60, 120], "led": [260, 400] }
+    ]
+  },
+
+  "demo": {
+    "finishSequence": ["oakc", "walnut", "cherry", "marble", "sage", "oak"]
+  }
+}

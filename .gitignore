@@ -1,0 +1,13 @@
+# 本机工具设置，不进仓库
+.claude/
+.vscode/
+.idea/
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+
+# 音频不进仓库（见 README「关于解说音频」）
+*.mp3
+*.wav
+*.mp4

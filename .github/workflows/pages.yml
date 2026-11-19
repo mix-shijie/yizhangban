@@ -1,0 +1,35 @@
+# 推送到 main 分支后，自动把整个静态站点发布到 GitHub Pages。
+# 首次使用：仓库 Settings → Pages → Source 选 "GitHub Actions"。
+name: 部署到 GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: 检查 config.json 和 narration.json 是合法 JSON
+        run: |
+          python3 -c "import json;[json.load(open(f,encoding='utf-8')) for f in ('config.json','narration.json')];print('JSON ok')"
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: .
+      - id: deployment
+        uses: actions/deploy-pages@v4

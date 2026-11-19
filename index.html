@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="一张板的真相：浏览器里运行的板材 3D 全屋定制配置器。换花色、开柜门、调尺寸、看板材截面、出示意材料单。由 MIX饰界智变·高维伟 制作，代码 MIT 开源。">
+<title>一张板的真相 · MIX饰界智变</title>
+<link rel="stylesheet" href="vendor/fonts/fonts.css">
+<style>
+:root{
+  --ink:#26221e;--mute:#7d756b;--line:rgba(38,34,30,.13);--paper:rgba(251,248,242,.84);--brass:#a8824f;
+  --serif:"Noto Serif SC","Source Han Serif SC","Songti SC",STSong,serif;
+  --sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:#e9e2d6;font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased;user-select:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+#gl{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;outline:none}
+#vig{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 46%,transparent 56%,rgba(34,24,14,.26) 100%)}
+
+.ui{transition:opacity .6s ease}
+body.noui .ui,body.intro .ui,body.loading .ui{opacity:0;pointer-events:none}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:16px;backdrop-filter:blur(18px) saturate(1.1);-webkit-backdrop-filter:blur(18px) saturate(1.1);box-shadow:0 12px 40px rgba(40,30,18,.10)}
+
+/* 品牌 */
+#brand{position:fixed;left:32px;top:26px;transition:color .6s}
+#brand h1{font-family:var(--serif);font-weight:600;font-size:23px;letter-spacing:.14em}
+#brand p{font-size:12.5px;letter-spacing:.34em;color:var(--mute);margin-top:6px;transition:color .6s}
+#brand #contact{letter-spacing:.08em;margin-top:4px;user-select:text}
+#brand #contact[hidden]{display:none}
+body.mode-xray #brand{color:#f3ede2}
+body.mode-xray #brand p{color:rgba(243,237,226,.6)}
+
+/* 工具栏 */
+#tools{position:fixed;right:28px;top:22px;display:flex;gap:4px;padding:6px}
+#tools button{font-size:15px;letter-spacing:.08em;padding:10px 16px;border-radius:11px;transition:background .25s,color .25s}
+#tools button:hover{background:rgba(38,34,30,.07)}
+#tools button.on{background:var(--ink);color:#f6f1e7}
+#tools .sep{width:1px;background:var(--line);margin:8px 4px}
+
+/* 花色 */
+#dock{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);display:flex;align-items:center;gap:16px;padding:12px 20px}
+#dock .cap{font-size:13px;letter-spacing:.2em;color:var(--mute);white-space:nowrap}
+#dock .name{font-family:var(--serif);font-size:17px;min-width:5.2em;white-space:nowrap}
+#dock .name small{font-family:var(--sans);font-size:12px;color:var(--mute);margin-left:6px}
+#sw{display:flex;gap:10px}
+#sw button{width:38px;height:38px;border-radius:50%;background-size:cover;background-position:center;border:1px solid rgba(38,34,30,.18);position:relative;transition:transform .25s}
+#sw button:hover{transform:translateY(-2px)}
+#sw button.on::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:1.5px solid var(--ink)}
+
+/* 材料单 */
+#bom{position:fixed;right:28px;top:92px;width:318px;overflow:hidden;z-index:2}
+#bom header{display:flex;justify-content:space-between;align-items:baseline;padding:16px 20px 12px;cursor:pointer}
+#bom header h2{font-family:var(--serif);font-weight:600;font-size:17px;letter-spacing:.1em}
+#bom header span{font-size:12px;color:var(--mute)}
+#bom .body{padding:0 20px 18px;max-height:70vh;transition:max-height .5s ease,padding .5s ease,opacity .4s}
+body.mode-xray #bom{opacity:0;pointer-events:none}
+#bomsum{display:none;font-size:13px;color:var(--mute);padding:0 20px 14px;letter-spacing:.02em}
+#bom.shut #bomsum{display:block}
+#bom.shut .body{max-height:0;padding-bottom:0;opacity:0}
+.row{display:flex;justify-content:space-between;align-items:baseline;padding:9px 0;border-top:1px solid var(--line)}
+.row span{font-size:14px;color:var(--mute)}
+.row b{font-family:var(--serif);font-weight:600;font-size:21px;font-variant-numeric:tabular-nums}
+.row b i{font-style:normal;font-family:var(--sans);font-weight:400;font-size:12.5px;color:var(--mute);margin-left:4px}
+.sub{font-size:12.5px;color:var(--mute);line-height:1.7;padding-bottom:8px}
+.tier{display:flex;justify-content:space-between;align-items:baseline;padding:8px 0}
+.tier span{font-size:14px}
+.tier b{font-family:var(--serif);font-weight:600;font-size:17px;font-variant-numeric:tabular-nums}
+.tiers{border-top:1px solid var(--line);margin-top:2px;padding-top:6px}
+.note{font-size:12.5px;color:var(--brass);letter-spacing:.06em;margin-top:6px}
+.btn{display:inline-block;margin-top:12px;font-size:13.5px;letter-spacing:.1em;padding:9px 16px;border:1px solid var(--ink);border-radius:999px;transition:background .25s,color .25s}
+.btn:hover{background:var(--ink);color:#f6f1e7}
+
+/* 提示 */
+#hint{position:fixed;left:32px;bottom:30px;font-size:12.5px;letter-spacing:.1em;color:var(--mute)}
+body.mode-xray #hint{color:rgba(243,237,226,.55)}
+body.mode-adjust #hint{color:var(--brass)}
+
+/* 尺寸标注 */
+#dims{position:fixed;inset:0;pointer-events:none}
+#dims div{position:absolute;transform:translate(-50%,-50%);font-size:13px;font-variant-numeric:tabular-nums;letter-spacing:.04em;background:var(--ink);color:#f6f1e7;padding:3px 9px;border-radius:999px;white-space:nowrap}
+
+/* 透视 */
+#xr{position:fixed;inset:0;pointer-events:none}
+#chips{position:absolute;left:50%;top:92px;transform:translateX(-50%);display:flex;gap:4px;padding:6px;pointer-events:auto;opacity:0;transition:opacity .6s}
+body.mode-xray:not(.noui) #chips{opacity:1}
+body:not(.mode-xray) #chips{pointer-events:none}
+#chips button{font-size:15px;letter-spacing:.1em;padding:9px 18px;border-radius:11px}
+#chips button.on{background:var(--ink);color:#f6f1e7}
+.xl{position:absolute;left:0;top:0;color:#f6f0e4;opacity:0;transition:opacity .9s;white-space:nowrap;padding-left:46px}
+.xl::before{content:"";position:absolute;left:0;top:13px;width:36px;height:1px;background:rgba(246,240,228,.7)}
+.xl::after{content:"";position:absolute;left:-3px;top:10px;width:7px;height:7px;border-radius:50%;background:#f6f0e4}
+.xl.left{padding-left:0;padding-right:46px;text-align:right}
+.xl.left::before{left:auto;right:0}
+.xl.left::after{left:auto;right:-3px}
+.xl h3{font-family:var(--serif);font-weight:600;font-size:19px;letter-spacing:.12em}
+.xl p{font-size:13.5px;line-height:1.65;color:rgba(246,240,228,.74);margin-top:3px}
+.xl p em{font-style:normal;color:#d9b47e}
+body.xr-labels .xl{opacity:1}
+#xcap{position:absolute;left:0;right:0;bottom:118px;text-align:center;font-family:var(--serif);font-size:30px;letter-spacing:.2em;color:#f6f0e4;opacity:0;transform:translateY(8px);transition:opacity 1.2s,transform 1.2s;text-shadow:0 2px 24px rgba(0,0,0,.5)}
+body.xr-cap #xcap{opacity:1;transform:none}
+#xnote{position:absolute;left:0;right:0;bottom:92px;text-align:center;font-size:12.5px;letter-spacing:.16em;color:rgba(246,240,228,.55);opacity:0;transition:opacity 1.2s}
+body.xr-cap #xnote{opacity:1}
+
+/* 开场 */
+#intro{position:fixed;inset:0;pointer-events:none}
+#intro::before{content:"";position:absolute;inset:0;background:linear-gradient(to top right,rgba(22,15,8,.62),rgba(22,15,8,.18) 38%,transparent 62%);opacity:0;transition:opacity 1.6s ease}
+body.intro-title #intro::before{opacity:1}
+#title{position:absolute;left:8vw;bottom:15vh;opacity:0;transform:translateY(14px);transition:opacity 1.6s ease,transform 1.6s ease;color:#fbf7ef;text-shadow:0 2px 30px rgba(30,20,10,.55)}
+#title h1{font-family:var(--serif);font-weight:600;font-size:clamp(44px,6.4vw,92px);letter-spacing:.16em}
+#title p{font-size:clamp(14px,1.25vw,19px);letter-spacing:.5em;margin-top:18px;opacity:.88}
+#title i{display:block;width:64px;height:1px;background:#fbf7ef;margin-top:22px;opacity:.7}
+body.intro-title #title{opacity:1;transform:none}
+#skip{position:absolute;right:30px;bottom:28px;font-size:13px;letter-spacing:.2em;color:rgba(38,34,30,.6);padding:8px 14px;pointer-events:auto;opacity:0;transition:opacity .5s}
+body.intro #skip{opacity:1}
+body:not(.intro) #skip{pointer-events:none}
+
+/* 讲给 AI 听 */
+#ai{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(30,24,18,.42);backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .45s;z-index:5}
+body.ai-open #ai{opacity:1;pointer-events:auto}
+#ai .box{width:min(1080px,92vw);max-height:88vh;overflow:auto;background:#fbf8f2;border-radius:20px;padding:34px 38px 30px;box-shadow:0 30px 90px rgba(20,14,8,.35);transform:translateY(14px);transition:transform .45s;user-select:text}
+body.ai-open #ai .box{transform:none}
+#ai .head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px}
+#ai h2{font-family:var(--serif);font-weight:600;font-size:28px;letter-spacing:.14em}
+#ai .head p{font-size:14.5px;color:var(--mute);margin-top:8px;letter-spacing:.04em}
+#ai .x{font-size:22px;line-height:1;padding:6px 10px;color:var(--mute)}
+#ai .cols{display:grid;grid-template-columns:1fr 1.15fr;gap:26px}
+@media(max-width:820px){#ai .cols{grid-template-columns:1fr}}
+#ai h4{font-size:12.5px;letter-spacing:.24em;color:var(--mute);font-weight:500;margin-bottom:12px}
+#card{border:1px solid var(--line);border-radius:14px;padding:22px 24px;background:#fff}
+#card .t{font-family:var(--serif);font-weight:600;font-size:20px;letter-spacing:.06em;margin-bottom:4px}
+#card .b{font-size:13px;color:var(--brass);letter-spacing:.14em;margin-bottom:12px}
+#card dl{display:grid;grid-template-columns:5.2em 1fr;row-gap:9px;font-size:14.5px;line-height:1.55;border-top:1px solid var(--line);padding-top:14px}
+#card dt{color:var(--mute)}
+#ld{background:#221f1c;color:#e9e1d2;border-radius:14px;padding:20px 22px;font:13px/1.65 "Cascadia Code",Consolas,"SFMono-Regular",monospace;white-space:pre-wrap;word-break:break-all;max-height:52vh;overflow:auto}
+#ld .k{color:#d9b47e}
+#ai .foot{display:flex;justify-content:space-between;align-items:center;margin-top:18px;gap:16px;flex-wrap:wrap}
+#ai .foot p{font-size:13px;color:var(--mute);line-height:1.7;max-width:46em}
+
+/* 自动演示：字幕、假光标、提问框、结尾 */
+#sub{position:fixed;left:0;right:0;bottom:104px;display:flex;justify-content:center;pointer-events:none;opacity:0;transform:translateY(8px);transition:opacity .35s,transform .35s;z-index:8}
+#sub.on{opacity:1;transform:none}
+#sub div{max-width:80vw;background:rgba(24,18,12,.64);padding:11px 28px 12px;border-radius:14px;text-align:center;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+#subzh{display:block;font-weight:500;font-size:clamp(22px,2.25vw,34px);letter-spacing:.08em;line-height:1.5;color:#fff}
+#suben{display:block;font-size:clamp(13px,1.05vw,17px);letter-spacing:.02em;color:rgba(255,255,255,.72);margin-top:2px}
+#suben:empty{display:none}
+body.demo #xcap{opacity:0!important}
+body.demo #xnote{bottom:60px}
+body.noui.d-dock #dock,body.noui.d-bom #bom{opacity:1}
+body.mode-xray.d-chips #chips{opacity:1}
+#bom{transform-origin:top right;transition:opacity .6s ease,transform .6s ease}
+body.d-bomzoom #bom{transform:scale(1.22)}
+#bombody .hl{background:rgba(168,130,79,.18);box-shadow:0 0 0 7px rgba(168,130,79,.18);border-radius:5px}
+#bombody > *{transition:background .35s,box-shadow .35s}
+.tick{animation:tick .8s ease}
+.row b,.tier b{display:inline-block;transform-origin:right center}
+@keyframes tick{0%{color:var(--brass);transform:scale(1.22)}60%{color:var(--brass)}100%{transform:none}}
+#cursor{position:fixed;left:0;top:0;width:0;height:0;pointer-events:none;opacity:0;transition:opacity .35s;z-index:7}
+body.d-cursor #cursor{opacity:1}
+#cursor::before{content:"";position:absolute;left:-19px;top:-19px;width:38px;height:38px;border-radius:50%;border:2.5px solid #fff;background:rgba(168,130,79,.35);box-shadow:0 2px 14px rgba(30,20,10,.45);transition:transform .2s,background .2s}
+#cursor.press::before{transform:scale(.72);background:rgba(168,130,79,.85)}
+#ask{position:fixed;left:50%;top:36%;width:min(820px,86vw);transform:translate(-50%,-50%) translateY(14px);padding:26px 32px 24px;opacity:0;pointer-events:none;transition:opacity .45s,transform .45s;z-index:7;background:rgba(251,248,242,.95)}
+body.d-ask #ask{opacity:1;transform:translate(-50%,-50%)}
+#ask label{display:block;font-size:13px;letter-spacing:.24em;color:var(--mute);margin-bottom:14px}
+#ask .q{min-height:58px;border:1.5px solid var(--ink);border-radius:14px;padding:14px 20px;font-size:clamp(19px,1.7vw,25px);letter-spacing:.04em;line-height:1.5}
+#ask .q i{display:inline-block;width:2px;height:1.1em;background:var(--ink);margin-left:3px;vertical-align:-.18em;animation:caret 1s steps(1) infinite}
+@keyframes caret{50%{opacity:0}}
+#asks{min-height:1.6em;font-size:14px;color:var(--brass);letter-spacing:.08em;margin-top:12px}
+#aiq{font-size:15.5px;color:var(--ink);margin-top:10px;letter-spacing:.04em}
+#aiq:empty{display:none}
+body.outro #intro::before{opacity:1}
+body.outro #title{opacity:1;transform:none}
+
+/* 载入 */
+#load{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#e9e2d6;font-family:var(--serif);font-size:16px;letter-spacing:.4em;color:var(--mute);transition:opacity .8s;z-index:9}
+body:not(.loading) #load{opacity:0;pointer-events:none}
+
+@media(max-width:900px){
+  #bom{width:270px;right:14px;top:84px}
+  #tools{right:14px}#tools button{padding:9px 11px;font-size:14px;white-space:nowrap}
+  #brand{left:18px}#hint{display:none}
+  #dock{gap:8px;padding:10px 12px;flex-wrap:wrap;justify-content:center;max-width:calc(100vw - 16px)}#dock .cap{display:none}#sw{gap:7px;flex-wrap:wrap;justify-content:center}#sw button{width:28px;height:28px}
+}
+@media(max-width:560px){
+  #tools{left:8px;right:8px;top:54px;flex-wrap:wrap;justify-content:center}#tools .sep{display:none}#tools button{padding:8px 9px;font-size:13px}
+  #bom{top:150px;right:8px}
+}
+#stage{position:fixed;inset:0;isolation:isolate}
+body.vertical{background:#211f1b}
+body.vertical #stage{inset:auto;left:50%;top:50%;width:min(100vw,56.25vh);height:min(100vh,177.777778vw);transform:translate(-50%,-50%);overflow:hidden;container-type:size}
+body.vertical #brand{left:6cqw;top:5cqw}
+body.vertical #brand h1{font-size:5cqw;letter-spacing:.12em}
+body.vertical #brand p{font-size:2.5cqw;margin-top:1.5cqw}
+body.vertical #tools{top:17cqw;left:5cqw;right:5cqw;padding:1.5cqw;gap:0;display:grid;grid-template-columns:repeat(4,1fr);border-radius:3cqw}
+body.vertical #tools button{font-size:2.9cqw;padding:2.3cqw .6cqw;white-space:nowrap}
+body.vertical #tools .sep{display:none}
+body.vertical #bom{top:38cqw;right:5cqw;width:48cqw;border-radius:3cqw}
+body.vertical #bom header{padding:3cqw 4cqw 2cqw}
+body.vertical #bom header h2{font-size:3.8cqw}
+body.vertical #bom header span{font-size:2.7cqw}
+body.vertical #bomsum{font-size:2.9cqw;padding:0 4cqw 3cqw}
+body.vertical #dock{width:90cqw;max-width:90cqw;bottom:7cqw;gap:3cqw;padding:3.5cqw 4cqw;flex-wrap:wrap;justify-content:center;border-radius:3cqw}
+body.vertical #dock .cap{display:none}
+body.vertical #sw{width:100%;gap:1.7cqw;justify-content:center;flex-wrap:nowrap}
+body.vertical #sw button{width:5.8cqw;height:5.8cqw;flex-shrink:0}
+body.vertical #sw button.on::after{inset:-1.1cqw;border-width:.3cqw}
+body.vertical #dock .name{font-size:3.8cqw;min-width:0}
+body.vertical #dock .name small{font-size:2.8cqw}
+body.vertical #hint{display:none}
+body.vertical #sub{bottom:30cqw}
+body.vertical #sub div{max-width:90cqw;padding:2.5cqw 4cqw;border-radius:2.5cqw}
+body.vertical #subzh{font-size:4.6cqw;letter-spacing:.035em;line-height:1.55}
+body.vertical #suben{font-size:2.9cqw}
+body.vertical #title{left:7cqw;bottom:24cqw;right:4cqw}
+body.vertical #title h1{font-size:8.2cqw;letter-spacing:.12em}
+body.vertical #title p{font-size:3.3cqw;margin-top:4cqw}
+body.vertical #title i{width:12cqw;margin-top:4cqw}
+body.vertical #skip{font-size:3cqw;bottom:7cqw;right:5cqw}
+body.vertical #chips{top:18cqw;width:88cqw;gap:.5cqw;padding:1.5cqw;justify-content:center}
+body.vertical #chips button{padding:2cqw;font-size:3.4cqw}
+body.vertical.mode-xray #tools{opacity:0;pointer-events:none}
+body.vertical .xl{width:42cqw!important;white-space:normal;transform:none!important;padding:0;text-align:left}
+body.vertical .xl::before,body.vertical .xl::after{display:none}
+body.vertical .xl[data-i="0"]{left:6cqw;top:55%}
+body.vertical .xl[data-i="1"]{left:52cqw;top:55%}
+body.vertical .xl[data-i="2"]{left:6cqw;top:70%}
+body.vertical .xl[data-i="3"]{left:52cqw;top:70%}
+body.vertical .xl h3{font-size:3.8cqw;letter-spacing:.04em}
+body.vertical .xl p{font-size:2.8cqw;line-height:1.6;margin-top:1.4cqw}
+body.vertical #xcap{bottom:27cqw;font-size:4cqw;letter-spacing:.06em}
+body.vertical #xnote,body.vertical.demo #xnote{bottom:25cqw;font-size:2.5cqw;letter-spacing:.04em}
+body.vertical #dims div{font-size:2.8cqw;padding:1cqw 2cqw}
+body.vertical.demo #bom,body.vertical #bom:not(.shut){top:39%;right:6cqw;width:88cqw;max-height:42%;overflow:auto;transform:none}
+body.vertical #bom .body{padding:0 4cqw 3cqw;max-height:none}
+body.vertical #bom.shut .body{max-height:0;padding-bottom:0}
+body.vertical .row{padding:1.4cqw 0}
+body.vertical .row span,body.vertical .tier span{font-size:3cqw}
+body.vertical .row b{font-size:4.5cqw}
+body.vertical .row b i{font-size:2.7cqw}
+body.vertical .sub,body.vertical .note{font-size:2.65cqw;line-height:1.6}
+body.vertical .tier{padding:1.2cqw 0}
+body.vertical .tier b{font-size:3.8cqw}
+body.vertical .btn{font-size:3cqw;padding:2cqw 3cqw;margin-top:2cqw}
+body.vertical #ai .box{width:90cqw;max-height:72cqh;padding:5cqw;border-radius:4cqw}
+body.vertical #ai .head{margin-bottom:3cqw}
+body.vertical #ai h2{font-size:5.2cqw}
+body.vertical #ai .head p,body.vertical #aiq{font-size:2.9cqw;margin-top:1.8cqw}
+body.vertical #ai .cols{grid-template-columns:1fr;gap:3cqw}
+body.vertical #ai h4{font-size:2.7cqw;margin-bottom:2cqw}
+body.vertical #card{padding:3cqw}
+body.vertical #card .t{font-size:3.8cqw}
+body.vertical #card .b{font-size:2.7cqw;margin-bottom:2cqw}
+body.vertical #card dl{font-size:2.9cqw;row-gap:1.3cqw;padding-top:2cqw}
+body.vertical #ld{font-size:2.45cqw;max-height:16cqh;padding:3cqw}
+body.vertical #ai .foot{margin-top:3cqw;gap:2cqw}
+body.vertical #ai .foot p{font-size:2.7cqw}
+body.vertical #ask{top:38%;width:88cqw;padding:5cqw}
+body.vertical #ask label{font-size:3cqw;margin-bottom:3cqw}
+body.vertical #ask .q{font-size:4.4cqw;padding:3cqw;min-height:16cqw}
+body.vertical #asks{font-size:3.2cqw;margin-top:3cqw}
+body.vertical #cursor::before{width:7cqw;height:7cqw;left:-3.5cqw;top:-3.5cqw;border-width:.5cqw}
+body.vertical .xl{position:absolute;width:42cqw!important;white-space:normal;transform:none!important;padding:0;text-align:left}
+body.vertical .xl::before,body.vertical .xl::after{display:none}
+body.vertical .xl h3{font-size:3.9cqw;letter-spacing:.06em}
+body.vertical .xl p{font-size:2.85cqw;line-height:1.65;margin-top:1cqw}
+body.vertical .xl[data-i="0"]{left:6cqw;top:55%}
+body.vertical .xl[data-i="1"]{left:52cqw;top:55%}
+body.vertical .xl[data-i="2"]{left:6cqw;top:69%}
+body.vertical .xl[data-i="3"]{left:52cqw;top:69%}
+body.vertical #chips{top:17cqw;width:88cqw;padding:1.5cqw;gap:0;justify-content:center;border-radius:3cqw}
+body.vertical #chips button{font-size:3.2cqw;padding:2.2cqw 2.4cqw;white-space:nowrap}
+body.vertical.mode-xray #tools{opacity:0;pointer-events:none}
+body.vertical #xcap{bottom:30cqw;font-size:4cqw;padding:0 6cqw}
+body.vertical #xnote,body.vertical.demo #xnote{bottom:26cqw;font-size:2.5cqw}
+#vig{background:radial-gradient(ellipse at 50% 46%,transparent 58%,rgba(34,24,14,.18) 100%)}
+body.vertical .xl p{font-size:2.6cqw;line-height:1.5}
+body.vertical .xl[data-i="2"],body.vertical .xl[data-i="3"]{top:71%}
+body.vertical #xnote,body.vertical.demo #xnote{font-size:2.5cqw;bottom:8cqw;padding:0 5cqw}
+body.vertical #xcap{bottom:18cqw}
+body.vertical.demo.d-bom #bom{top:36%;max-height:39%}
+body.vertical.demo.d-bom #sub,body.vertical.ai-open #sub{bottom:9cqw}
+body.vertical #ai{align-items:flex-start;padding-top:9cqh}
+body.vertical #ai .box{max-height:70cqh}
+body.vertical #card dl{font-size:2.6cqw;line-height:1.4;row-gap:1cqw}
+body.vertical #ld{max-height:16cqh;font-size:2.4cqw}
+body.vertical #ai .foot{margin-top:3cqw;gap:2cqw}
+body.vertical #ai .foot p{font-size:2.5cqw}
+body.vertical #title{left:7cqw;bottom:18cqw}
+body.vertical #title h1{font-size:8.5cqw}
+body.vertical #title p{font-size:3cqw;margin-top:3cqw}
+body.vertical.demo.mode-xray #sub{bottom:9cqw}
+body.vertical.demo.mode-xray #xnote{top:81%;bottom:auto}
+body.vertical.demo.d-bom #bombody{display:grid;grid-template-columns:1fr 1fr;column-gap:4cqw}
+body.vertical.demo.d-bom #bombody>:nth-child(1){grid-column:1;grid-row:1}
+body.vertical.demo.d-bom #bombody>:nth-child(2){grid-column:1;grid-row:2}
+body.vertical.demo.d-bom #bombody>:nth-child(3){grid-column:2;grid-row:1}
+body.vertical.demo.d-bom #bombody>:nth-child(4){grid-column:2;grid-row:2}
+body.vertical.demo.d-bom #bombody>:nth-child(5){grid-column:1;grid-row:3}
+body.vertical.demo.d-bom #bombody>:nth-child(6){grid-column:2;grid-row:3}
+body.vertical.demo.d-bom #bombody>:nth-child(7){grid-column:1/-1;grid-row:4}
+body.vertical.demo.d-bom #bombody>:nth-child(8){grid-column:1/-1;grid-row:5}
+body.vertical.demo.d-bom #bombody>:nth-child(9){grid-column:1/-1;grid-row:6}
+body.vertical.demo.d-bom #bombody>:nth-child(10){display:none}
+body.vertical.demo #ai .box{padding:4cqw}
+body.vertical.demo #ai .head{margin-bottom:2cqw}
+body.vertical.demo #card .t{font-size:3.4cqw}
+body.vertical.demo #ai .foot{display:none}
+body.vertical.demo #ld{max-height:14cqh}
+body.vertical.demo.d-bom .row{padding:.8cqw 0}
+body.vertical.demo.d-bom .row b{font-size:3.8cqw}
+body.vertical.demo.d-bom .sub{font-size:2.5cqw;line-height:1.4}
+body.vertical.demo.d-bom .tier{padding:.6cqw 0}
+body.vertical.demo.d-bom .tier b{font-size:3.3cqw}
+body.vertical #bom.shut header h2{font-size:3.2cqw;letter-spacing:.03em;white-space:nowrap}
+#bomtog{white-space:nowrap;flex-shrink:0}
+</style>
+</head>
+<body class="loading">
+<main id="stage"><canvas id="gl" tabindex="0"></canvas>
+<div id="vig"></div>
+
+<div id="brand" class="ui"><h1>一张板的真相</h1><p class="sub">MIX饰界智变</p><p id="contact" hidden></p></div>
+
+<div id="tools" class="ui panel">
+  <button data-act="xray" title="快捷键 X">透视</button>
+  <button data-act="adjust" title="快捷键 A">调整</button>
+  <button data-act="ai" title="快捷键 G">讲给 AI 听</button>
+  <span class="sep"></span>
+  <button data-act="cine" title="快捷键 C">巡游</button>
+  <button data-act="demo" title="快捷键 P · 约 2 分钟，带字幕、英文解说和配乐">自动演示</button>
+  <button data-act="replay" title="快捷键 R">重播开场</button>
+  <button data-act="hide" title="快捷键 H">隐藏界面</button>
+</div>
+
+<div id="bom" class="ui panel shut">
+  <header><h2>材料单与报价 · 示意</h2><span id="bomtog">展开</span></header>
+  <div id="bomsum"></div>
+  <div class="body" id="bombody"></div>
+</div>
+
+<div id="dock" class="ui panel">
+  <span class="cap">饰面</span>
+  <div id="sw"></div>
+  <span class="name" id="swname"></span>
+</div>
+
+<div id="hint" class="ui"></div>
+<div id="dims"></div>
+
+<div id="xr">
+  <div id="chips" class="panel"></div>
+  <div class="xl" data-i="0"><h3>饰面层</h3><p>浸渍胶膜纸，热压贴合<br>你看到的“花色”，只有一张纸那么薄</p></div>
+  <div class="xl" data-i="1"><h3 id="xcore">基材</h3><p><span id="xdesc"></span><br>胶黏剂主要在这一层 · <em>环保等级：示意，以检测报告为准</em></p></div>
+  <div class="xl" data-i="2"><h3>平衡层</h3><p>背面同样贴一层纸，防止板子翘曲</p></div>
+  <div class="xl left" data-i="3"><h3>封边</h3><p>封边带加热熔胶线<br>把截面封住，挡水汽，也挡气味</p></div>
+  <div id="xcap">装上墙十年，业主也看不见的地方。</div>
+  <div id="xnote">厚度已放大，便于观察 · 结构为示意</div>
+</div>
+
+<div id="intro">
+  <div id="title"><h1>一张板的真相</h1><i></i><p>MIX饰界智变</p></div>
+  <button id="skip">跳过 ›</button>
+</div>
+
+<div id="ai">
+  <div class="box">
+    <div class="head">
+      <div><h2>讲给 AI 听</h2><p>同一套方案，两种写法：左边给人看，右边给 AI 看。</p><p id="aiq"></p></div>
+      <button class="x" data-act="ai-close">×</button>
+    </div>
+    <div class="cols">
+      <div><h4>产品事实卡</h4><div id="card"></div></div>
+      <div><h4>结构化数据 · JSON-LD</h4><div id="ld"></div></div>
+    </div>
+    <div class="foot">
+      <p>右边是 schema.org 的 Product 写法，这是 AI 搜索能读懂的格式。事实写清楚了，AI 才有东西可引用。品牌、等级、价格均为示意。</p>
+      <button class="btn" id="copyld">复制 JSON-LD</button>
+    </div>
+  </div>
+</div>
+
+<div id="ask" class="panel"><label>向 AI 提问 · 演示</label><div class="q"><span id="askq"></span><i></i></div><p id="asks"></p></div>
+<div id="cursor"></div>
+<div id="sub"><div><span id="subzh"></span><span id="suben"></span></div></div>
+
+<div id="load">正在生成材质</div>
+
+</main>
+<script src="vendor/three/build/three.min.js"></script>
+<script src="vendor/three/examples/js/lights/RectAreaLightUniformsLib.js"></script>
+<script src="vendor/three/examples/js/controls/OrbitControls.js"></script>
+<script src="vendor/three/examples/js/environments/RoomEnvironment.js"></script>
+<script src="vendor/three/examples/js/geometries/RoundedBoxGeometry.js"></script>
+<script src="vendor/three/examples/js/shaders/CopyShader.js"></script>
+<script src="vendor/three/examples/js/postprocessing/EffectComposer.js"></script>
+<script src="vendor/three/examples/js/postprocessing/ShaderPass.js"></script>
+<script src="vendor/three/examples/js/math/SimplexNoise.js"></script>
+<script src="vendor/three/examples/js/shaders/SSAOShader.js"></script>
+<script src="vendor/three/examples/js/postprocessing/SSAOPass.js"></script>
+<script src="vendor/three/examples/js/shaders/LuminosityHighPassShader.js"></script>
+<script src="vendor/three/examples/js/postprocessing/UnrealBloomPass.js"></script>
+<script src="vendor/three/examples/js/shaders/GammaCorrectionShader.js"></script>
+<script src="vendor/three/examples/js/shaders/SMAAShader.js"></script>
+<script src="vendor/three/examples/js/postprocessing/SMAAPass.js"></script>
+<!-- config.js 先读 config.json，再依次加载 tex.js、main.js、demo.js -->
+<script src="js/config.js"></script>
+</body>
+</html>
