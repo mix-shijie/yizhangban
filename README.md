@@ -117,11 +117,11 @@ llms.txt              给 AI 读的项目概述
 
 ## 许可证
 
-- 代码：[MIT](LICENSE)，版权人 MIX饰界智变（高维视界科技（北京）有限公司）· 高维伟。
+- 代码：[MIT](LICENSE)，版权人 MIX饰界智变（高维饰界科技（北京）有限公司）· 高维伟。
 - 文字、截图等内容：[CC BY 4.0](CONTENT_LICENSE.md)，使用时请署名"MIX饰界智变·高维伟"。
 - 第三方：Three.js（MIT，见 `vendor/three/LICENSE`）；Noto Sans SC / Noto Serif SC（SIL OFL 1.1，见 `vendor/fonts/`）。
 
-由 MIX饰界智变（高维视界科技（北京）有限公司）· 高维伟 制作。如需定制或 GEO 诊断，可在视频号、公众号搜索：高维伟·MIX饰界智变。
+由 MIX饰界智变（高维饰界科技（北京）有限公司）· 高维伟 制作。如需定制或 GEO 诊断，可在视频号、公众号搜索：高维伟-MIX饰界智变。
 
 ---
 
