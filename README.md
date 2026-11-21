@@ -137,3 +137,8 @@ llms.txt              给 AI 读的项目概述
 - **Audio:** no audio files are shipped; narration uses the browser's built-in speech synthesis.
 - **Privacy:** no analytics, no cookies, no forms, no backend, no AI API calls.
 - **License:** code MIT; text and images CC BY 4.0, attribution "MIX饰界智变·高维伟". All prices and brands shown are illustrative only.
+
+## 相关项目
+
+- [GEO 服务与报价](https://github.com/mix-shijie/geo-service)
+- [板材上下游 AI 推荐观察白皮书](https://github.com/mix-shijie/geo-whitepaper)
